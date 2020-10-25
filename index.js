@@ -26,6 +26,9 @@ app.use(morgan(
 // Binding the CORS Middleware
 app.use(cors())
 
+// GET requests for index.html will redirect to the frontend
+app.use(express.static('build'))
+
 /**
  * Data
  */
