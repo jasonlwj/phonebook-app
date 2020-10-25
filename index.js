@@ -113,7 +113,7 @@ app.get('/info', (req, res) => {
  * Bind to port and listen for requests
  */
 
-const PORT = 3001
+const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
 	console.log(`Server now running on port ${PORT}`)
 })
