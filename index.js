@@ -59,12 +59,16 @@ let persons = [
 
 // GET all
 app.get('/api/persons', (req, res) => {
-	Person.find({}).then(persons => res.json(persons))
+	Person
+		.find({})
+		.then(persons => res.json(persons))
 })
 
 // GET by ID
 app.get('/api/persons/:id', (req, res) => {
-	Person.findById(req.params.id).then(person => res.json(person))
+	Person
+		.findById(req.params.id)
+		.then(person => res.json(person))
 
 	// if (person) res.json(person)
 	// else res.status(404).end()
@@ -86,21 +90,15 @@ app.post('/api/persons', (req, res) => {
 		return res.status(400).json({
 			error: 'name/number missing'
 		})
-	
-	if (persons.map(person => person.name).includes(body.name))
-		return res.status(400).json({
-			error: 'name must be unique'
-		})
 
-	const person = {
+	const person = new Person({
 		name: body.name,
-		number: body.number,
-		id: Math.floor(Math.random() * 1000)
-	}
+		number: body.number
+	})
 
-	persons = persons.concat(person)
-
-	res.json(person)
+	person
+		.save()
+		.then(savedPerson => res.json(savedPerson))
 })
 
 // GET API information
