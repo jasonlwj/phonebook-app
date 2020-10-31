@@ -9,8 +9,14 @@ const Person = require('./models/person')
  * Middleware Config
  */
 
+// GET requests for index.html will redirect to the frontend
+app.use(express.static('build'))
+
 // Binding the JSON Parser Middleware
 app.use(express.json())
+
+// Binding the CORS Middleware
+app.use(cors())
 
 // Morgan token definitions
 morgan.token('body', (req, res) => JSON.stringify(req.body))
@@ -25,11 +31,21 @@ app.use(morgan(
 	{ skip: (req, res) => req.method !== 'POST' }
 ))
 
-// Binding the CORS Middleware
-app.use(cors())
+// Defining the middleware for error handling
+const errorHandler = (err, req, res, next) => {
+	console.error(err.message)
 
-// GET requests for index.html will redirect to the frontend
-app.use(express.static('build'))
+	if (err.name === 'CastError') {
+		return res.status(400).send({ error: 'malformed id' })
+	}
+
+	next(err)
+}
+
+// Defining the middleware for unknown endpoints
+const unknownEndpoint = (req, res, next) => {
+	return res.status(404).send({ error: 'unknown endpoint' })
+}
 
 /**
  * Data
@@ -65,13 +81,15 @@ app.get('/api/persons', (req, res) => {
 })
 
 // GET by ID
-app.get('/api/persons/:id', (req, res) => {
-	Person
-		.findById(req.params.id)
-		.then(person => res.json(person))
-
-	// if (person) res.json(person)
-	// else res.status(404).end()
+app.get('/api/persons/:id', (req, res, next) => {
+	Person.findById(req.params.id)
+		.then(person => {
+			if (person) 
+				res.json(person)
+			else 
+				res.status(404).end()
+		})
+		.catch(err => next(err))
 })
 
 // DELETE by ID
@@ -81,12 +99,8 @@ app.delete('/api/persons/:id', (req, res) => {
 
 	// res.status(204).end()
 	Person.findByIdAndDelete(req.params.id)
-		.then(result => 
-			res.status(204).end()
-		)
-		.catch(err => 
-			console.log(err)
-		)
+		.then(result => res.status(204).end())
+		.catch(err => next(err))
 })
 
 // POST
@@ -115,6 +129,12 @@ app.get('/info', (req, res) => {
 		<div>${new Date()}</div>
 	`)
 })
+
+// Handle requests with unknown endpoint
+app.use(unknownEndpoint)
+
+// Handle requests which result in errors
+app.use(errorHandler)
 
 /**
  * Bind to port and listen for requests
