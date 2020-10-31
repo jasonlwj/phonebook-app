@@ -4,6 +4,7 @@ const morgan = require('morgan')
 const cors = require('cors')
 const app = express()
 const Person = require('./models/person')
+const { update } = require('./models/person')
 
 /**
  * Middleware Config
@@ -94,10 +95,6 @@ app.get('/api/persons/:id', (req, res, next) => {
 
 // DELETE by ID
 app.delete('/api/persons/:id', (req, res) => {
-	// const id = Number(req.params.id)
-	// persons = persons.filter(person => person.id !== id)
-
-	// res.status(204).end()
 	Person.findByIdAndDelete(req.params.id)
 		.then(result => res.status(204).end())
 		.catch(err => next(err))
@@ -120,6 +117,20 @@ app.post('/api/persons', (req, res) => {
 	person
 		.save()
 		.then(savedPerson => res.json(savedPerson))
+})
+
+// PUT
+app.put('/api/persons/:id', (req, res, next) => {
+	const body = req.body
+
+	const person = {
+		name: body.name,
+		number: body.number
+	}
+
+	Person.findByIdAndUpdate(req.params.id, person, { new: true })
+		.then(updatedPerson => res.json(updatedPerson))
+		.catch(err => next(err))
 })
 
 // GET API information
