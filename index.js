@@ -135,10 +135,13 @@ app.put('/api/persons/:id', (req, res, next) => {
 
 // GET API information
 app.get('/info', (req, res) => {
-	res.send(`
-		<div>Phonebook has info for ${persons.length} people</div>
-		<div>${new Date()}</div>
-	`)
+	
+	Person.countDocuments({}, (err, count) => {
+		res.send(`
+			<div>Phonebook has info for ${count} people</div>
+			<div>${new Date()}</div>
+		`)
+	})
 })
 
 // Handle requests with unknown endpoint
