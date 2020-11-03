@@ -68,6 +68,9 @@ const App = () => {
 				setNewNumber('')
 				setTimeout(() => setNotificationMessage(null), 5000)
 			})
+			.catch(err => {
+				setTimeout(() => setErrorMessage(err.response.data), 5000)
+			})
 	}
 
 	// delete entry
