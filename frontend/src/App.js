@@ -47,7 +47,7 @@ const App = () => {
 							))
 							setNotificationMessage(`Updated ${returnedPerson.name}`)
 						})
-						.catch(error => {
+						.catch(err => {
 							setErrorMessage(`Information of ${person.name} has already been removed from server`)
 							setPersons(persons.filter(p => p.id !== person.id))
 							setTimeout(() => setErrorMessage(null), 5000)
@@ -69,7 +69,8 @@ const App = () => {
 				setTimeout(() => setNotificationMessage(null), 5000)
 			})
 			.catch(err => {
-				setTimeout(() => setErrorMessage(err.response.data), 5000)
+				setErrorMessage(err.response.data.error)
+				setTimeout(() => setErrorMessage(null), 5000)
 			})
 	}
 
